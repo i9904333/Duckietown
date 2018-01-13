@@ -240,7 +240,7 @@ For more info on algorithm and parameters please refer to the google doc:
 
     def generateVote(self,segment):
         p1 = np.array([segment.points[0].x, segment.points[0].y])
-        p2 = np.array([segment.points[1].x, segment.points[1].y])
+        p2 = np.array([segment.points[1].x, segment.points[1].y]) #right y<0
         t_hat = (p2-p1)/np.linalg.norm(p2-p1)
         n_hat = np.array([-t_hat[1],t_hat[0]])
         d1 = np.inner(n_hat,p1)
