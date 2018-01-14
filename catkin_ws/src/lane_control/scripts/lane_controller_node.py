@@ -103,8 +103,8 @@ class lane_controller(object):
         self.pub_car_cmd.publish(car_cmd_msg)
         #self.pub_wheels_cmd.publish(wheels_cmd_msg)
         
-    def cbInverseSwitch(self,switch_msg)
-        self.inverse = switch_msg;
+    def cbInverseSwitch(self,switch_msg):
+        self.inverse = switch_msg.data;
         
     def cbPose(self,lane_pose_msg):
         self.lane_reading = lane_pose_msg 
@@ -112,9 +112,9 @@ class lane_controller(object):
         cross_track_err = lane_pose_msg.d - self.d_offset
         heading_err = lane_pose_msg.phi
         
-        if self.inverse == True
+        if self.inverse == True:
             self.VInverse = -1
-        else
+        else:
             self.VInverse = 1
             
         car_control_msg = Twist2DStamped()
