@@ -8,7 +8,8 @@ class lane_controller(object):
     def __init__(self):
         self.node_name = rospy.get_name()
         self.lane_reading = None
-        self.inverse = True
+        self.inverse = False
+        self.VInverse = 1
         self.pub_counter = 0
 
         # Setup parameters
@@ -19,7 +20,7 @@ class lane_controller(object):
 
         # Subscriptions
         self.sub_lane_reading = rospy.Subscriber("~lane_pose", LanePose, self.cbPose, queue_size=1)
-		self.sub_inverse_switch = rospy.Subscriber("~inverse_switch", BoolStamped, self.cbInverseSwitch, queue_size=1)
+        self.sub_inverse_switch = rospy.Subscriber("~inverse_switch", BoolStamped, self.cbInverseSwitch, queue_size=1)
 
         # safe shutdown
         rospy.on_shutdown(self.custom_shutdown)
