@@ -2,13 +2,14 @@
 import rospy
 import numpy as np
 import math
-from duckietown_msgs.msg import  Twist2DStamped, LanePose
+from duckietown_msgs.msg import  Twist2DStamped, LanePose, BoolStamped
 
 class lane_controller(object):
     def __init__(self):
         self.node_name = rospy.get_name()
         self.lane_reading = None
-
+        self.inverse = False
+        self.VInverse = 1
         self.pub_counter = 0
 
         # Setup parameters
@@ -19,6 +20,7 @@ class lane_controller(object):
 
         # Subscriptions
         self.sub_lane_reading = rospy.Subscriber("~lane_pose", LanePose, self.cbPose, queue_size=1)
+        self.sub_inverse_switch = rospy.Subscriber("~inverse_switch", BoolStamped, self.cbInverseSwitch, queue_size=1)
 
         # safe shutdown
         rospy.on_shutdown(self.custom_shutdown)
@@ -100,16 +102,24 @@ class lane_controller(object):
 
         self.pub_car_cmd.publish(car_cmd_msg)
         #self.pub_wheels_cmd.publish(wheels_cmd_msg)
-
+        
+    def cbInverseSwitch(self,switch_msg):
+        self.inverse = switch_msg.data;
+        
     def cbPose(self,lane_pose_msg):
         self.lane_reading = lane_pose_msg 
 
         cross_track_err = lane_pose_msg.d - self.d_offset
         heading_err = lane_pose_msg.phi
-
+        
+        if self.inverse == True:
+            self.VInverse = -1
+        else:
+            self.VInverse = 1
+            
         car_control_msg = Twist2DStamped()
         car_control_msg.header = lane_pose_msg.header
-        car_control_msg.v = self.v_bar #*self.speed_gain #Left stick V-axis. Up is positive
+        car_control_msg.v = self.VInverse*self.v_bar #*self.speed_gain #Left stick V-axis. Up is positive
         
         if math.fabs(cross_track_err) > self.d_thres:
             cross_track_err = cross_track_err / math.fabs(cross_track_err) * self.d_thres
